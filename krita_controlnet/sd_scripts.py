@@ -33,56 +33,7 @@ class ScriptsWindow(QWidget):
         
         self.setWindowTitle("Scripts")
         self.resize(940, 600)
-    """
-    =============================================
-    getter func
-    =============================================
-    """
-    # only detail adetailer for my convenience
-    # adetailer/
-    
-    def get_adetailer_enable(self):
-        return self.adetailer_enable
-    
-    def get_adetailer_model(self):
-        return self.adetailer_model
-    
-    def get_adetailer_model_2nd(self):
-        return self.adetailer_model_2nd
-    
-    def get_adetailer_prompt(self):
-        return self.adetailer_prompt
-    
-    def get_adetailer_prompt_2nd(self):
-        return self.adetailer_prompt_2nd
-    
-    def get_adetailer_negative_prompt(self):
-        return self.adetailer_negative_prompt
-    
-    def get_adetailer_negative_prompt_2nd(self):
-        return self.adetailer_negative_prompt_2nd  
-    # /adetailer
 
-    # tiled_diffusion
-    def get_tiled_diffusion_enable(self):
-        return self.tiled_diffusion_enable
-    
-    # tiled_vae
-    def get_tiled_vae_enable(self):
-        return self.tiled_vae_enable
-    
-    # cd_tuner
-    def get_cd_tuner_enable(self):
-        return self.cd_tuner_enable
-    
-    # negpip
-    def get_negpip_enable(self):
-        return self.negpip_enable
-    
-    # regional_prompter
-    def get_regional_prompter_enable(self):
-        return self.regional_prompter_enable
-    
     
     """
     =============================================

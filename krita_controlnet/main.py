@@ -1157,18 +1157,18 @@ class ControlnetDocker(DockWidget):
         self.controlnet_preprocessor_resolution_list,
         self.controlnet_layer_list,
         self.controlnet_mask_layer_list,
-        self.scripts_window.get_adetailer_enable().isChecked(),
-        self.scripts_window.get_adetailer_model().currentText(),
-        self.scripts_window.get_adetailer_model_2nd().currentText(),
-        self.scripts_window.get_adetailer_prompt().toPlainText(),
-        self.scripts_window.get_adetailer_prompt_2nd().toPlainText(),
-        self.scripts_window.get_adetailer_negative_prompt().toPlainText(),
-        self.scripts_window.get_adetailer_negative_prompt_2nd().toPlainText() ,
-        self.scripts_window.get_tiled_diffusion_enable().isChecked(),
-        self.scripts_window.get_tiled_vae_enable().isChecked(),
-        self.scripts_window.get_cd_tuner_enable().isChecked(),
-        self.scripts_window.get_negpip_enable().isChecked(),
-        self.scripts_window.get_regional_prompter_enable().isChecked(),
+        self.scripts_window.adetailer_enable.isChecked(),
+        self.scripts_window.adetailer_model.currentText(),
+        self.scripts_window.adetailer_model_2nd.currentText(),
+        self.scripts_window.adetailer_prompt.toPlainText(),
+        self.scripts_window.adetailer_prompt_2nd.toPlainText(),
+        self.scripts_window.adetailer_negative_prompt.toPlainText(),
+        self.scripts_window.adetailer_negative_prompt_2nd.toPlainText() ,
+        self.scripts_window.tiled_diffusion_enable.isChecked(),
+        self.scripts_window.tiled_vae_enable.isChecked(),
+        self.scripts_window.cd_tuner_enable.isChecked(),
+        self.scripts_window.negpip_enable.isChecked(),
+        self.scripts_window.regional_prompter_enable.isChecked(),
         self.auto_save_prompt_checkbox.isChecked(),
             
 
@@ -1256,18 +1256,18 @@ class ControlnetDocker(DockWidget):
                 unit["resize_button1"].setChecked(True) # -> crop and resize
         # script
         if self.default["auto save"]:
-            self.scripts_window.get_adetailer_enable().setChecked(self.default["adetailer_enable"])
-            self.scripts_window.get_adetailer_model().setCurrentText(self.default["adetailer_model"])
-            self.scripts_window.get_adetailer_model_2nd().setCurrentText(self.default["adetailer_model_2nd"])
-            self.scripts_window.get_adetailer_prompt().setPlainText(self.default["adetailer_prompt"])
-            self.scripts_window.get_adetailer_prompt_2nd().setPlainText(self.default["adetailer_prompt_2nd"])
-            self.scripts_window.get_adetailer_negative_prompt().setPlainText(self.default["adetailer_negative_prompt"])
-            self.scripts_window.get_adetailer_negative_prompt_2nd().setPlainText(self.default["adetailer_negative_prompt_2nd"])
-            self.scripts_window.get_tiled_diffusion_enable().setChecked(self.default["tiled_diffusion_enable"])
-            self.scripts_window.get_tiled_vae_enable().setChecked(self.default["tiled_vae_enable"])
-            self.scripts_window.get_cd_tuner_enable().setChecked(self.default["cd_tuner_enable"])
-            self.scripts_window.get_negpip_enable().setChecked(self.default["negpip_enable"])
-            self.scripts_window.get_regional_prompter_enable().setChecked(self.default["regional_prompter_enable"])
+            self.scripts_window.adetailer_enable.setChecked(self.default["adetailer_enable"])
+            self.scripts_window.adetailer_model.setCurrentText(self.default["adetailer_model"])
+            self.scripts_window.adetailer_model_2nd.setCurrentText(self.default["adetailer_model_2nd"])
+            self.scripts_window.adetailer_prompt.setPlainText(self.default["adetailer_prompt"])
+            self.scripts_window.adetailer_prompt_2nd.setPlainText(self.default["adetailer_prompt_2nd"])
+            self.scripts_window.adetailer_negative_prompt.setPlainText(self.default["adetailer_negative_prompt"])
+            self.scripts_window.adetailer_negative_prompt_2nd.setPlainText(self.default["adetailer_negative_prompt_2nd"])
+            self.scripts_window.tiled_diffusion_enable.setChecked(self.default["tiled_diffusion_enable"])
+            self.scripts_window.tiled_vae_enable.setChecked(self.default["tiled_vae_enable"])
+            self.scripts_window.cd_tuner_enable.setChecked(self.default["cd_tuner_enable"])
+            self.scripts_window.negpip_enable.setChecked(self.default["negpip_enable"])
+            self.scripts_window.regional_prompter_enable.setChecked(self.default["regional_prompter_enable"])
 
 
     # KRITA API  
