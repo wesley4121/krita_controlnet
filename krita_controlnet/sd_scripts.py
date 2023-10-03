@@ -12,9 +12,9 @@ from .ui.PlainTextEdit import *
 from .ui.Spinbox import *
 
 class ScriptsWindow(QWidget):
+    
     def __init__(self):
         super().__init__()
-        
         # sd dir
         self.sd_dir = api.get("sdapi/v1/cmd-flags", "data_dir")
         
@@ -33,14 +33,69 @@ class ScriptsWindow(QWidget):
         
         self.setWindowTitle("Scripts")
         self.resize(940, 600)
-        
+    """
+    =============================================
+    getter func
+    =============================================
+    """
+    # only detail adetailer for my convenience
+    # adetailer/
+    
+    def get_adetailer_enable(self):
+        return self.adetailer_enable
+    
+    def get_adetailer_model(self):
+        return self.adetailer_model
+    
+    def get_adetailer_model_2nd(self):
+        return self.adetailer_model_2nd
+    
+    def get_adetailer_prompt(self):
+        return self.adetailer_prompt
+    
+    def get_adetailer_prompt_2nd(self):
+        return self.adetailer_prompt_2nd
+    
+    def get_adetailer_negative_prompt(self):
+        return self.adetailer_negative_prompt
+    
+    def get_adetailer_negative_prompt_2nd(self):
+        return self.adetailer_negative_prompt_2nd  
+    # /adetailer
+
+    # tiled_diffusion
+    def get_tiled_diffusion_enable(self):
+        return self.tiled_diffusion_enable
+    
+    # tiled_vae
+    def get_tiled_vae_enable(self):
+        return self.tiled_vae_enable
+    
+    # cd_tuner
+    def get_cd_tuner_enable(self):
+        return self.cd_tuner_enable
+    
+    # negpip
+    def get_negpip_enable(self):
+        return self.negpip_enable
+    
+    # regional_prompter
+    def get_regional_prompter_enable(self):
+        return self.regional_prompter_enable
+    
+    
+    """
+    =============================================
+    create interface
+    =============================================
+    """
+
     def create_interface(self):
         self.layout = QHBoxLayout(self)
 
         self.create_toggle_button_interface()
         self.create_setting_stacks()
-    
-    
+
     def create_toggle_button_interface(self):
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
@@ -157,7 +212,11 @@ class ScriptsWindow(QWidget):
         self.create_regional_prompter_stack()
         
         self.layout.addWidget(self.setting_stacks)
-    
+    """
+    =============================================
+    create stacks
+    =============================================
+    """
     def create_adetailer_stack(self):
         page = QWidget()
         page_layout = QVBoxLayout(page)

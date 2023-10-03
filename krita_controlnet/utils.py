@@ -51,6 +51,24 @@ def write_auto_save_json(
         controlnet_preprocessor_resolution_list,
         controlnet_layer_list,
         controlnet_mask_layer_list,
+        adetailer_enable,
+        adetailer_model,
+        adetailer_model_2nd,
+        adetailer_prompt,
+        adetailer_prompt_2nd,
+        adetailer_negative_prompt,
+        adetailer_negative_prompt_2nd,
+
+        tiled_diffusion_enable,
+
+        tiled_vae_enable,
+
+        cd_tuner_enable,
+
+        negpip_enable,
+
+        regional_prompter_enable,
+
         isautosave
     ):
     plugin_dir = os.path.dirname(__file__)
@@ -83,6 +101,20 @@ def write_auto_save_json(
         autojs["controlnet_preprocessor_resolution_list"] = controlnet_preprocessor_resolution_list
         autojs["controlnet_layer_list"] = controlnet_layer_list
         autojs["controlnet_mask_layer_list"] = controlnet_mask_layer_list
+
+        autojs["adetailer_enable"] = adetailer_enable
+        autojs["adetailer_model"] = adetailer_model
+        autojs["adetailer_model_2nd"] = adetailer_model_2nd
+        autojs["adetailer_prompt"] = adetailer_prompt
+        autojs["adetailer_prompt_2nd"] = adetailer_prompt_2nd
+        autojs["adetailer_negative_prompt"] = adetailer_negative_prompt
+        autojs["adetailer_negative_prompt_2nd"] = adetailer_negative_prompt_2nd
+
+        autojs["tiled_diffusion_enable"] = tiled_diffusion_enable
+        autojs["tiled_vae_enable"] = tiled_vae_enable
+        autojs["cd_tuner_enable"] = cd_tuner_enable
+        autojs["negpip_enable"] = negpip_enable
+        autojs["regional_prompter_enable"] = regional_prompter_enable
         autojs["auto save"] = isautosave
 
         f.write(json.dumps(autojs))

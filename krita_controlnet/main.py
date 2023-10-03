@@ -26,8 +26,8 @@ class ControlnetDocker(DockWidget):
         self.default = open_default_json()
         # Load autosave
         if self.default["auto save"]: self.default = open_auto_save_json() 
-        
-        
+
+
         self.parameters = ""
         self.latest_seed = -1
         
@@ -117,7 +117,7 @@ class ControlnetDocker(DockWidget):
         # prompt
         self.prompt_label = CustomLabel("Prompt")
         self.prompt = CustomPlainTextEdit()
-        self.prompt.setFixedHeight(100)
+        self.prompt.setFixedHeight(600)
         self.prompt_layout = QVBoxLayout()
         self.prompt_layout.addWidget(self.prompt_label)
         self.prompt_layout.addWidget(self.prompt)
@@ -1119,6 +1119,8 @@ class ControlnetDocker(DockWidget):
     =============================================
     """
     def setting_auto_save(self):
+        if not self.auto_save_prompt_checkbox.isChecked() : 
+            return
         self.controlnet_preprocessor_list = [unit["module"].currentText() for unit in self.units]
         self.controlnet_model_list = [unit["model"].currentText() for unit in self.units]
         self.controlnet_weigh_list = [unit["weight"].value() for unit in self.units]
@@ -1127,38 +1129,50 @@ class ControlnetDocker(DockWidget):
         self.controlnet_preprocessor_resolution_list= [unit["module_res"].value() for unit in self.units]
         self.controlnet_layer_list = [unit["layer"].text() for unit in self.units]
         self.controlnet_mask_layer_list = [unit["mask"].text() for unit in self.units]
-        
-        if self.auto_save_prompt_checkbox.isChecked() : 
-            write_auto_save_json(
-            self.prompt.toPlainText(),
-            self.negative_prompt.toPlainText(),
-            self.clip.value(),
-            self.sampler.currentText(),
-            self.steps.value(),
-            self.width.value(),
-            self.height.value(),
-            self.cfg.value(),
-            self.seed.text(),
-            self.hires_upscaler.currentText(),
-            self.hires_steps.value(),
-            self.hires_denoise.value(),
-            self.hires_upscaleby.value(),
-            self.i2i_width.value(),
-            self.i2i_height.value(),
-            self.i2i_denoise.value(),
-            self.inpaint_mask_blur.value(),
-            self.inpaint_padding.value(),
-            self.controlnet_preprocessor_list,
-            self.controlnet_model_list,
-            self.controlnet_weigh_list,
-            self.controlnet_starting_step_list,
-            self.controlnet_ending_step_list,
-            self.controlnet_preprocessor_resolution_list,
-            self.controlnet_layer_list,
-            self.controlnet_mask_layer_list,
-            self.auto_save_prompt_checkbox.isChecked()
 
-            )
+        write_auto_save_json(
+        self.prompt.toPlainText(),
+        self.negative_prompt.toPlainText(),
+        self.clip.value(),
+        self.sampler.currentText(),
+        self.steps.value(),
+        self.width.value(),
+        self.height.value(),
+        self.cfg.value(),
+        self.seed.text(),
+        self.hires_upscaler.currentText(),
+        self.hires_steps.value(),
+        self.hires_denoise.value(),
+        self.hires_upscaleby.value(),
+        self.i2i_width.value(),
+        self.i2i_height.value(),
+        self.i2i_denoise.value(),
+        self.inpaint_mask_blur.value(),
+        self.inpaint_padding.value(),
+        self.controlnet_preprocessor_list,
+        self.controlnet_model_list,
+        self.controlnet_weigh_list,
+        self.controlnet_starting_step_list,
+        self.controlnet_ending_step_list,
+        self.controlnet_preprocessor_resolution_list,
+        self.controlnet_layer_list,
+        self.controlnet_mask_layer_list,
+        self.scripts_window.get_adetailer_enable().isChecked(),
+        self.scripts_window.get_adetailer_model().currentText(),
+        self.scripts_window.get_adetailer_model_2nd().currentText(),
+        self.scripts_window.get_adetailer_prompt().toPlainText(),
+        self.scripts_window.get_adetailer_prompt_2nd().toPlainText(),
+        self.scripts_window.get_adetailer_negative_prompt().toPlainText(),
+        self.scripts_window.get_adetailer_negative_prompt_2nd().toPlainText() ,
+        self.scripts_window.get_tiled_diffusion_enable().isChecked(),
+        self.scripts_window.get_tiled_vae_enable().isChecked(),
+        self.scripts_window.get_cd_tuner_enable().isChecked(),
+        self.scripts_window.get_negpip_enable().isChecked(),
+        self.scripts_window.get_regional_prompter_enable().isChecked(),
+        self.auto_save_prompt_checkbox.isChecked(),
+            
+
+        )
     """
     =============================================
     setting:
@@ -1240,8 +1254,20 @@ class ControlnetDocker(DockWidget):
                 unit["module_res"].setValue(self.default["controlnet preprocessor resolution"])
                 unit["mode_button0"].setChecked(True) # -> balanced
                 unit["resize_button1"].setChecked(True) # -> crop and resize
-
-
+        # script
+        if self.default["auto save"]:
+            self.scripts_window.get_adetailer_enable().setChecked(self.default["adetailer_enable"])
+            self.scripts_window.get_adetailer_model().setCurrentText(self.default["adetailer_model"])
+            self.scripts_window.get_adetailer_model_2nd().setCurrentText(self.default["adetailer_model_2nd"])
+            self.scripts_window.get_adetailer_prompt().setPlainText(self.default["adetailer_prompt"])
+            self.scripts_window.get_adetailer_prompt_2nd().setPlainText(self.default["adetailer_prompt_2nd"])
+            self.scripts_window.get_adetailer_negative_prompt().setPlainText(self.default["adetailer_negative_prompt"])
+            self.scripts_window.get_adetailer_negative_prompt_2nd().setPlainText(self.default["adetailer_negative_prompt_2nd"])
+            self.scripts_window.get_tiled_diffusion_enable().setChecked(self.default["tiled_diffusion_enable"])
+            self.scripts_window.get_tiled_vae_enable().setChecked(self.default["tiled_vae_enable"])
+            self.scripts_window.get_cd_tuner_enable().setChecked(self.default["cd_tuner_enable"])
+            self.scripts_window.get_negpip_enable().setChecked(self.default["negpip_enable"])
+            self.scripts_window.get_regional_prompter_enable().setChecked(self.default["regional_prompter_enable"])
 
 
     # KRITA API  
