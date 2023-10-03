@@ -15,14 +15,18 @@ from .utils import *
 from .hanahuda import *
 from .sd_scripts import *
 from .api import *
-
+import os
 
 class ControlnetDocker(DockWidget):
     def __init__(self):
         super().__init__()
         
+
         # default_config.jsonを取得
         self.default = open_default_json()
+        # Load autosave
+        if self.default["auto save"]: self.default = open_auto_save_json() 
+        
         
         self.parameters = ""
         self.latest_seed = -1
@@ -30,6 +34,8 @@ class ControlnetDocker(DockWidget):
         self.create_interface()
         self.connect_interface()
         self.setting_interface()
+
+
 
         self.setWindowTitle("ControlNet")
     
@@ -53,6 +59,15 @@ class ControlnetDocker(DockWidget):
         self.setWidget(self.widget)
 
     def create_main_panel(self):
+
+        #suto save args layout
+        self.auto_save_prompt_checkbox = QCheckBox("auto save generate parameter")
+        self.default_setting_button = QToolButton()
+        self.default_setting_button.setText("♻")
+        self.auto_save_layout = QHBoxLayout()
+        self.auto_save_layout.setSpacing(10)
+        self.auto_save_layout.addWidget(self.auto_save_prompt_checkbox)
+        self.auto_save_layout.addWidget(self.default_setting_button)
         # output layer name
         self.output_layer_label = CustomLabel("output layer name")
         self.output_layer = QLineEdit()
@@ -61,6 +76,10 @@ class ControlnetDocker(DockWidget):
         self.output_layer_layout.addWidget(self.output_layer_label)
         self.output_layer_layout.addWidget(self.output_layer)
         self.output_layer_layout.addWidget(self.overwrite_checkbox)
+        self.output_layer_layout.addLayout(self.auto_save_layout)
+
+
+
         # generate & save button
         self.generate_button = QPushButton("Generate")
         button_height = self.generate_button.sizeHint().height() * 1.5
@@ -71,14 +90,16 @@ class ControlnetDocker(DockWidget):
         button_layout = QHBoxLayout()
         button_layout.addWidget(self.generate_button)
         button_layout.addWidget(self.save_button)
-        self.auto_save_checkbox = QCheckBox("webuiで設定しているディレクトリに自動保存")
+
+        self.auto_save_texture_checkbox = QCheckBox("webuiで設定しているディレクトリに自動保存")
         self.auto_resize_checkbox = QCheckBox("キャンバスを自動リサイズ")
         self.auto_resize_checkbox.setToolTip("出力画像サイズにキャンバスサイズを合わせます")
         self.last_result = QCheckBox("最終結果のみ出力")
         self.last_result.setToolTip("preprocessorの結果など複数枚出力される場合\n最終的な結果のみ出力します")
+       
         self.generate_layout = QVBoxLayout()
         self.generate_layout.addLayout(button_layout)
-        self.generate_layout.addWidget(self.auto_save_checkbox)
+        self.generate_layout.addWidget(self.auto_save_texture_checkbox)
         self.generate_layout.addWidget(self.auto_resize_checkbox)
         self.generate_layout.addWidget(self.last_result)
         self.generate_layout.addStretch()
@@ -175,6 +196,30 @@ class ControlnetDocker(DockWidget):
         self.height_layout = QHBoxLayout()
         self.height_layout.addWidget(self.height_label)
         self.height_layout.addWidget(self.height)
+        # face_restorer
+        self.face_restorer_label = CustomLabel("Face Restorer Model")
+        self.face_restorer_list = QComboBox()
+        self.face_restorer_models = api.get_face_restorer_list() # face_restorer list
+        self.face_restorer_list.addItems(self.face_restorer_models)
+        self.face_restorer_list_layout = QHBoxLayout()
+        self.face_restorer_list_layout.addWidget(self.face_restorer_label)
+        self.face_restorer_list_layout.addWidget(self.face_restorer_list)
+        # face_restorer_codeformematwight widget
+        self.code_former_wight_label = CustomLabel("Code Format Wight")
+        self.code_former_wight = CustomSpinBox(0, 1, 0.1) 
+        self.code_former_wight.setValue(api.get_code_former_weight())
+        self.code_former_wight_layout = QHBoxLayout()
+        self.code_former_wight_layout.addWidget(self.code_former_wight_label)
+        self.code_former_wight_layout.addWidget(self.code_former_wight)
+        # face_restorer collapsible widget
+        self.face_restorer_layout = QVBoxLayout()
+        self.face_restorer_layout.addLayout(self.face_restorer_list_layout)
+        self.face_restorer_layout.addLayout(self.code_former_wight_layout)
+        self.face_restorer_layout.addStretch(1)
+        self.face_restorer_widget = QWidget()
+        self.face_restorer_widget.setLayout(self.face_restorer_layout)
+        self.face_restorer = CollapsibleWidget("Face Restorer", self.face_restorer_widget)
+
         # hires
         # upscaler
         self.hires_upscaler_label = CustomLabel("Upscaler")
@@ -252,6 +297,8 @@ class ControlnetDocker(DockWidget):
         self.config_layout.addLayout(self.sampler_layout)
         self.config_layout.addWidget(create_line())
         self.config_layout.addLayout(self.steps_layout)
+        self.config_layout.addWidget(create_line())
+        self.config_layout.addWidget(self.face_restorer)
         self.config_layout.addWidget(create_line())
         self.config_layout.addWidget(self.hires)
         self.config_layout.addWidget(create_line())
@@ -619,10 +666,18 @@ class ControlnetDocker(DockWidget):
         # vae
         self.vae.currentTextChanged.connect(self.vae_changed)
         
+
         # widht, height, hires_upscaleby
         self.width.valueChanged(self.calc_hires_result_size)
         self.height.valueChanged(self.calc_hires_result_size)
         self.hires_upscaleby.valueChanged(self.calc_hires_result_size)
+        # face_restorer,code_former_wight
+        self.face_restorer_list.currentTextChanged.connect(self.face_restorer_changed)
+        self.code_former_wight.valueChanged(self.code_former_wight_changed)
+        # auto save
+        self.default_setting_button.clicked.connect(self.parameters_set_default_change)
+        self.auto_save_prompt_checkbox.clicked.connect(self.auto_save_prompt_changed)
+
         
         # controlnet module button
         for unit_index, unit in enumerate(self.units):
@@ -631,6 +686,7 @@ class ControlnetDocker(DockWidget):
             unit["option_perfect"].stateChanged.connect(partial(self.controlnet_perfect_changed, unit_index))
     
     def generate_button_clicked(self):
+
         krita = Krita.instance()
         doc = krita.activeDocument()
         if doc is None:
@@ -660,6 +716,10 @@ class ControlnetDocker(DockWidget):
         self.parameters = response2["info"]
         if not self.i2i_enable.isChecked() and not self.hires.isChecked(): self.parameters = delete_denoising_strength(self.parameters)
         self.latest_seed = extract_seed(self.parameters)
+        self.setting_auto_save()
+
+
+
     
     def save_button_clicked(self):
         krita = Krita.instance()
@@ -684,7 +744,7 @@ class ControlnetDocker(DockWidget):
             "width": self.width.value(),
             "height": self.height.value(),
             "cfg_scale": self.cfg.value(),
-            "save_images": self.auto_save_checkbox.isChecked(),
+            "save_images": self.auto_save_texture_checkbox.isChecked(),
             "override_settings": {
                 "CLIP_stop_at_last_layers": self.clip.value()
             },
@@ -697,6 +757,7 @@ class ControlnetDocker(DockWidget):
         self.add_t2i_payload()
         if "controlnet" in self.scripts_window.scripts_list: self.add_controlnet_payload()
         self.add_script_payload()
+        self.add_face_restorers_payload()
     
     def add_i2i_payload(self):
         # i2i setting
@@ -735,7 +796,16 @@ class ControlnetDocker(DockWidget):
             "hr_upscaler": self.hires_upscaler.currentText(),
             "hr_sampler_name": self.sampler.currentText(),
         }
+
         self.payload.update(hires_payload)
+
+    # face_restorer payload
+    def add_face_restorers_payload(self):
+        face_restorers_payload = {
+            "restore_faces": self.face_restorer.isChecked(),
+        }
+        self.payload.update(face_restorers_payload)
+
     
     def add_controlnet_payload(self):
         payload_list = []
@@ -782,6 +852,26 @@ class ControlnetDocker(DockWidget):
     connected func
     =============================================
     """
+    def parameters_set_default_change(self):
+        # default_config.jsonを取得
+        self.default = open_default_json()
+        self.setting_interface()
+        # Load autosave
+        if self.default["auto save"]: self.default = open_auto_save_json() 
+    def auto_save_prompt_changed(self):
+        plugin_dir = os.path.dirname(__file__)
+        autosave_json_path = os.path.join(plugin_dir, "autosave_config.json")
+        default_json_path = os.path.join(plugin_dir, "default_config.json")
+        autojs = open_auto_save_json()
+        defujs = open_default_json()
+        with open(autosave_json_path, "w") as f:
+            autojs["auto save"] = self.auto_save_prompt_checkbox.isChecked()
+            f.write(json.dumps(autojs))
+            f.close()
+        with open(default_json_path, "w") as f:
+            defujs["auto save"] = self.auto_save_prompt_checkbox.isChecked()
+            f.write(json.dumps(defujs))
+            f.close()
     def checkpoint_changed(self, selected_checkpoint_name):
         selected_checkpoint_title = api.convert_checkpoint_to_title(selected_checkpoint_name)
         option_payload = {"sd_model_checkpoint": selected_checkpoint_title}
@@ -789,6 +879,15 @@ class ControlnetDocker(DockWidget):
     
     def vae_changed(self, selected_vae_name):
         option_payload = {"sd_vae": selected_vae_name}
+        api.post("sdapi/v1/options", option_payload)
+        
+    # face_restorer changed
+    def face_restorer_changed(self , selected_face_restorer_name):
+        option_payload = {"face_restoration_model": selected_face_restorer_name}
+        api.post("sdapi/v1/options", option_payload)
+
+    def code_former_wight_changed(self , selected_face_restorer_name):
+        option_payload = {"code_former_weight": selected_face_restorer_name}
         api.post("sdapi/v1/options", option_payload)
     
     def seed_random_clicked(self):
@@ -805,7 +904,7 @@ class ControlnetDocker(DockWidget):
         new_height = int(height * scale)
         text = f"from: {width} x {height} to: {new_width} x {new_height}"
         self.hires_resize_result.setText(text)
-    
+
     def controlnet_module_button_clicked(self, unit_index):
         krita = Krita.instance()
         doc = krita.activeDocument()
@@ -1013,16 +1112,64 @@ class ControlnetDocker(DockWidget):
         if unit["resize_button1"].isChecked(): return 1
         if unit["resize_button2"].isChecked(): return 2
         else: return 0
-    
+    """
+    =============================================
+    save:
+        save parameter
+    =============================================
+    """
+    def setting_auto_save(self):
+        self.controlnet_preprocessor_list = [unit["module"].currentText() for unit in self.units]
+        self.controlnet_model_list = [unit["model"].currentText() for unit in self.units]
+        self.controlnet_weigh_list = [unit["weight"].value() for unit in self.units]
+        self.controlnet_starting_step_list = [unit["start"].value() for unit in self.units]
+        self.controlnet_ending_step_list = [unit["end"].value() for unit in self.units]
+        self.controlnet_preprocessor_resolution_list= [unit["module_res"].value() for unit in self.units]
+        self.controlnet_layer_list = [unit["layer"].text() for unit in self.units]
+        self.controlnet_mask_layer_list = [unit["mask"].text() for unit in self.units]
+        
+        if self.auto_save_prompt_checkbox.isChecked() : 
+            write_auto_save_json(
+            self.prompt.toPlainText(),
+            self.negative_prompt.toPlainText(),
+            self.clip.value(),
+            self.sampler.currentText(),
+            self.steps.value(),
+            self.width.value(),
+            self.height.value(),
+            self.cfg.value(),
+            self.seed.text(),
+            self.hires_upscaler.currentText(),
+            self.hires_steps.value(),
+            self.hires_denoise.value(),
+            self.hires_upscaleby.value(),
+            self.i2i_width.value(),
+            self.i2i_height.value(),
+            self.i2i_denoise.value(),
+            self.inpaint_mask_blur.value(),
+            self.inpaint_padding.value(),
+            self.controlnet_preprocessor_list,
+            self.controlnet_model_list,
+            self.controlnet_weigh_list,
+            self.controlnet_starting_step_list,
+            self.controlnet_ending_step_list,
+            self.controlnet_preprocessor_resolution_list,
+            self.controlnet_layer_list,
+            self.controlnet_mask_layer_list,
+            self.auto_save_prompt_checkbox.isChecked()
+
+            )
     """
     =============================================
     setting:
         default value set to interface
     =============================================
     """
+
     def setting_interface(self):
-        self.auto_resize_checkbox.setChecked(True)
-        self.overwrite_checkbox.setChecked(True)
+        self.auto_resize_checkbox.setChecked(False)
+        self.auto_save_prompt_checkbox.setChecked(self.default["auto save"])
+        self.overwrite_checkbox.setChecked(False)
         self.last_result.setChecked(True)
         
         # prompt
@@ -1071,17 +1218,35 @@ class ControlnetDocker(DockWidget):
         self.inpaint_area_button0.setChecked(True) # -> whole picture
         
         # controlnet
-        for unit in self.units:
-            unit["module"].setCurrentText(self.default["controlnet preprocessor"])
-            unit["model"].setCurrentText(self.default["controlnet model"])
-            unit["weight"].setValue(self.default["controlnet weight"])
-            unit["start"].setValue(self.default["controlnet starting step"])
-            unit["end"].setValue(self.default["controlnet ending step"])
-            unit["module_res"].setValue(self.default["controlnet preprocessor resolution"])
-            unit["mode_button0"].setChecked(True) # -> balanced
-            unit["resize_button1"].setChecked(True) # -> crop and resize
+        for index,unit in enumerate(self.units):
+                #for auto save parameter
+            if self.default["auto save"]:
+                unit["module"].setCurrentText(self.default["controlnet_preprocessor_list"][index])
+                unit["model"].setCurrentText(self.default["controlnet_model_list"][index])
+                unit["weight"].setValue(self.default["controlnet_weigh_list"][index])
+                unit["start"].setValue(self.default["controlnet_starting_step_list"][index])
+                unit["end"].setValue(self.default["controlnet_ending_step_list"][index])
+                unit["module_res"].setValue(self.default["controlnet_preprocessor_resolution_list"][index])
+                unit["layer"].setText(self.default["controlnet_layer_list"][index])
+                unit["mask"].setText(self.default["controlnet_mask_layer_list"][index])
+                unit["mode_button0"].setChecked(True) # -> balanced
+                unit["resize_button1"].setChecked(True) # -> crop and resize
+            else:
+                unit["module"].setCurrentText(self.default["controlnet preprocessor"])
+                unit["model"].setCurrentText(self.default["controlnet model"])
+                unit["weight"].setValue(self.default["controlnet weight"])
+                unit["start"].setValue(self.default["controlnet starting step"])
+                unit["end"].setValue(self.default["controlnet ending step"])
+                unit["module_res"].setValue(self.default["controlnet preprocessor resolution"])
+                unit["mode_button0"].setChecked(True) # -> balanced
+                unit["resize_button1"].setChecked(True) # -> crop and resize
 
+
+
+
+    # KRITA API  
     def canvasChanged(self, canvas):
+
         pass
 
 Krita.instance().addDockWidgetFactory(DockWidgetFactory("mydocker", DockWidgetFactoryBase.DockRight, ControlnetDocker))

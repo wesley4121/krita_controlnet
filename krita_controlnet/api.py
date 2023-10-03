@@ -93,9 +93,21 @@ class Api:
     def get_vae_selected(self):
         return self.get("sdapi/v1/options", "sd_vae")
     
+    
     # sampler一覧
     def get_sampler_list(self):
         return self.get("sdapi/v1/samplers", "name")
+    
+    # face_restorers_model 一覧
+    def get_face_restorer_list(self):
+        return self.get("sdapi/v1/face-restorers", "name")
+    
+    def get_face_restore_selected(self):
+        return self.get("sdapi/v1/options", "face_restoration_model")
+    
+    # code_former_weight
+    def get_code_former_weight(self):
+        return self.get("sdapi/v1/options", "code_former_weight")
     
     # upscaler一覧
     def get_upscaler_list(self):

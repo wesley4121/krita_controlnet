@@ -11,13 +11,84 @@ import re
 import struct
 import zlib
 
-
 # open default json
 def open_default_json():
     plugin_dir = os.path.dirname(__file__)
     default_json_path = os.path.join(plugin_dir, "default_config.json")
     with open(default_json_path, "r") as f:
         return json.load(f)
+# open autosave json
+def open_auto_save_json():
+    plugin_dir = os.path.dirname(__file__)
+    default_json_path = os.path.join(plugin_dir, "autosave_config.json")
+    with open(default_json_path, "r") as f:
+        return json.load(f)
+# write autosave json
+def write_auto_save_json(
+        positive_prompt,
+        negetive_prompt,
+        clip_skip,
+        sampler,
+        sampling_steps,
+        width ,
+        height,
+        cfg_scale,
+        seed,
+        hires_upscaler,
+        hires_steps,
+        hires_denoising_strength,
+        hires_upscale_by,
+        i2i_width,
+        i2i_height,
+        i2i_sdenoising_strength,
+        inpaint_mask_blur,
+        inpaint_only_masked_padding_pixels,
+        controlnet_preprocessor_list,
+        controlnet_model_list,
+        controlnet_weigh_list,
+        controlnet_starting_step_list,
+        controlnet_ending_step_list,
+        controlnet_preprocessor_resolution_list,
+        controlnet_layer_list,
+        controlnet_mask_layer_list,
+        isautosave
+    ):
+    plugin_dir = os.path.dirname(__file__)
+    autosave_json_path = os.path.join(plugin_dir, "autosave_config.json")
+    autojs = open_auto_save_json()
+    with open(autosave_json_path, "w") as f:
+        autojs["prompt"]=positive_prompt
+        autojs["negative prompt"]= negetive_prompt
+        autojs["clip skip"] = clip_skip
+        autojs["sampler"] = sampler
+        autojs["sampling steps"] = sampling_steps
+        autojs["width"] = width
+        autojs["height"] = height
+        autojs["cfg scale"] = cfg_scale
+        autojs["seed"] = seed
+        autojs["hires upscaler"] = hires_upscaler
+        autojs["hires steps"] = hires_steps
+        autojs["hires denoising strength"] = hires_denoising_strength
+        autojs["hires upscale by"] = hires_upscale_by
+        autojs["i2i width"] = i2i_width
+        autojs["i2i height"] = i2i_height
+        autojs["i2i denoising strength"] = i2i_sdenoising_strength
+        autojs["inpaint mask blur"] = inpaint_mask_blur
+        autojs["inpaint only masked padding, pixels"] = inpaint_only_masked_padding_pixels
+        autojs["controlnet_preprocessor_list"] = controlnet_preprocessor_list
+        autojs["controlnet_model_list"] = controlnet_model_list
+        autojs["controlnet_weigh_list"] = controlnet_weigh_list
+        autojs["controlnet_starting_step_list"] = controlnet_starting_step_list
+        autojs["controlnet_ending_step_list"] = controlnet_ending_step_list
+        autojs["controlnet_preprocessor_resolution_list"] = controlnet_preprocessor_resolution_list
+        autojs["controlnet_layer_list"] = controlnet_layer_list
+        autojs["controlnet_mask_layer_list"] = controlnet_mask_layer_list
+        autojs["auto save"] = isautosave
+
+        f.write(json.dumps(autojs))
+        f.close()
+        
+
 
 # add a border
 def create_line():
